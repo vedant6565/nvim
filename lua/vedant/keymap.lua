@@ -43,3 +43,8 @@ vim.keymap.set('n', '<C-k>', '<cmd> TmuxNavigateUp<CR>')
 vim.keymap.set('n', '<leader>U', '<cmd>UndotreeToggle<CR>')
 
 vim.keymap.set('n', '-', ':Oil<CR>', { desc = 'Open parent directory' })
+
+vim.keymap.set('n', '<leader>gp', ':Gitsigns preview_hunk<CR>', { desc = 'Git [P]review' })
+vim.keymap.set({ 'n', 'v' }, '<leader>gd', ':DiffviewFileHistory<CR>', { desc = 'Git [D]iff' })
+vim.keymap.set('n', '<leader>gcd', ':DiffviewClose<CR>', { desc = 'Git [C]lose Diff' })
+vim.keymap.set('n', '<leader>gcf', ':DiffviewFileHistory %<CR>', { desc = 'Git [C]urrent Diff' })
