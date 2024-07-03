@@ -45,7 +45,7 @@ local function clock()
     return ''
   end
 
-  local time = tostring(os.date()):sub(12, 16)
+  local time = tostring(os.date '%I:%M %p')
   if os.time() % 2 == 1 then
     time = time:gsub(':', ' ')
   end -- make the `:` blink
@@ -143,125 +143,6 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- nerdfont: powerline icons have the prefix 'ple-'
-local bottomSeparators = { left = '', right = '' }
-local topSeparators = { left = '', right = '' }
-local emptySeparators = { left = '', right = '' }
-local branch_max_width = 40
-local branch_min_width = 10
-
-local lualineConfig = {
-  -- INFO using the tabline will override vim's default tabline, so the tabline
-  -- should always include the tab element
-  tabline = {
-    lualine_a = {
-      -- INFO setting different section separators in the same components has
-      -- yanky results, they should have the same separator
-      -- searchcounter at the top, so it work with cmdheight=0
-      { clock, section_separators = emptySeparators },
-      {
-        'tabs',
-        mode = 1,
-        max_length = vim.o.columns * 0.7,
-        section_separators = emptySeparators,
-        cond = function()
-          return fn.tabpagenr '$' > 1
-        end,
-      },
-    },
-    lualine_b = {
-      { section_separators = topSeparators },
-    },
-    lualine_c = {},
-    lualine_x = {},
-    -- INFO dap and recording status defined in the respective plugin configs
-    -- for lualine_y and lualine_z for their lazy loading
-    lualine_y = {
-      { markM },
-    },
-    lualine_z = {},
-  },
-  sections = {
-    lualine_a = {
-      { 'branch', cond = isStandardBranch },
-      { currentFile },
-    },
-    lualine_b = {
-      {
-        function()
-          local lsps = vim.lsp.get_active_clients { bufnr = vim.fn.bufnr() }
-          local icon = require('nvim-web-devicons').get_icon_by_filetype(vim.api.nvim_buf_get_option(0, 'filetype'))
-          if lsps and #lsps > 0 then
-            local names = {}
-            for _, lsp in ipairs(lsps) do
-              table.insert(names, lsp.name)
-            end
-            return string.format('%s %s', table.concat(names, ', '), icon)
-          else
-            return icon or ''
-          end
-        end,
-        on_click = function()
-          vim.api.nvim_command 'LspInfo'
-        end,
-        color = function()
-          local _, color = require('nvim-web-devicons').get_icon_cterm_color_by_filetype(vim.api.nvim_buf_get_option(0, 'filetype'))
-          return { fg = color }
-        end,
-      },
-      'encoding',
-      'progress',
-    },
-    lualine_c = {
-      'mode',
-      {
-        'branch',
-        fmt = function(output)
-          local win_width = vim.o.columns
-          local max = branch_max_width
-          if win_width * 0.25 < max then
-            max = math.floor(win_width * 0.25)
-          end
-          if max < branch_min_width then
-            max = branch_min_width
-          end
-          if max % 2 ~= 0 then
-            max = max + 1
-          end
-          if output:len() >= max then
-            return output:sub(1, (max / 2) - 1) .. '...' .. output:sub(-1 * ((max / 2) - 1), -1)
-          end
-          return output
-        end,
-      },
-    },
-    lualine_x = {
-      {
-        'diagnostics',
-        symbols = { error = '󰅚 ', warn = ' ', info = '󰋽 ', hint = '󰘥 ' },
-      },
-    },
-    lualine_y = {
-      'diff',
-    },
-    lualine_z = {
-      { selectionCount, padding = { left = 0, right = 1 } },
-      'location',
-    },
-  },
-  options = {
-    refresh = { statusline = 1000 },
-    ignore_focus = {
-      'DressingInput',
-      'DressingSelect',
-      'ccc-ui',
-    },
-    globalstatus = true,
-    component_separators = { left = '', right = '' },
-    section_separators = bottomSeparators,
-  },
-}
-
 local config = {
   options = {
     icons_enabled = true,
@@ -282,9 +163,26 @@ local config = {
     },
   },
   sections = {
-    lualine_a = { 'mode' },
+    lualine_a = { 'mode', clock, markM },
     lualine_b = { 'branch', 'diff', 'diagnostics' },
-    lualine_c = { currentFile },
+    lualine_c = {
+      currentFile,
+      {
+        function()
+          local count = 0
+          for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+            if vim.api.nvim_buf_get_option(buf, 'modified') then
+              count = count + 1
+              -- return 'Unsaved buffers' -- any message or icon
+            end
+          end
+          if count > 0 then
+            return count .. ' Unsaved'
+          end
+          return ''
+        end,
+      },
+    },
     lualine_x = { 'encoding', 'fileformat', 'filetype' },
     lualine_y = { 'progress' },
     lualine_z = { 'location' },
