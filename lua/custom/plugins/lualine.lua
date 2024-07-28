@@ -173,7 +173,6 @@ local config = {
           for _, buf in ipairs(vim.api.nvim_list_bufs()) do
             if vim.api.nvim_buf_get_option(buf, 'modified') then
               count = count + 1
-              -- return 'Unsaved buffers' -- any message or icon
             end
           end
           if count > 0 then
@@ -181,11 +180,20 @@ local config = {
           end
           return ''
         end,
+        color = { fg = '#fffff', bg = '#ff0000', gui = 'bold' },
+        separator = { right = '' },
       },
     },
     lualine_x = { 'encoding', 'fileformat', 'filetype' },
     lualine_y = { 'progress' },
-    lualine_z = { 'location' },
+    lualine_z = {
+      'location',
+      -- {
+      --   function()
+      --     return require('battery').get_status_line()
+      --   end,
+      -- },
+    },
   },
   inactive_sections = {
     lualine_a = {},
@@ -205,8 +213,9 @@ local config = {
 
 return {
   'nvim-lualine/lualine.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
+  dependencies = { 'nvim-tree/nvim-web-devicons', 'justinhj/battery.nvim' },
   config = function()
+    require('battery').setup {}
     require('lualine').setup(config)
   end,
 }

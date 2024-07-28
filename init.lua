@@ -11,7 +11,10 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   local lazyrepo = 'https://github.com/folke/lazy.nvim.git'
-  vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  local out = vim.fn.system { 'git', 'clone', '--filter=blob:none', '--branch=stable', lazyrepo, lazypath }
+  if vim.v.shell_error ~= 0 then
+    error('Error cloning lazy.nvim:\n' .. out)
+  end
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
@@ -24,7 +27,7 @@ require('lazy').setup({
     config = function()
       local ft = require 'Comment.ft'
 
-      ft.set('typescriptreact', '{/*%s*/}')
+      ft.set('typescriptreact', '{/* %s */}')
     end,
   },
   { -- LSP Configuration & Plugins
@@ -172,23 +175,9 @@ require('lazy').setup({
           },
         },
 
-        tailwindcss = {
-          filetypes_exclude = { 'markdown' },
-          filetypes_include = {},
-          class_attributes = {
-            'class',
-            'className',
-            'classNames',
-            'ngClass',
-          },
-        },
+        zls = {},
 
-        gopls = {},
-
-        prismals = {},
-
-        gdtoolkit = {},
-
+        biome = {},
         eslint = {},
 
         lua_ls = {
@@ -274,6 +263,8 @@ require('lazy').setup({
       { 'roobert/tailwindcss-colorizer-cmp.nvim', config = true },
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'luckasRanarison/tailwind-tools.nvim',
+      'onsails/lspkind-nvim',
     },
     config = function()
       local cmp = require 'cmp'
@@ -306,8 +297,8 @@ require('lazy').setup({
           end, { 'i', 's' }),
         },
         sources = {
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
+          { name = 'nvim_lsp', priority = 10 },
+          { name = 'luasnip', priority = 5 },
           { name = 'path' },
         },
         vim.api.nvim_create_autocmd('FileType', {
@@ -320,6 +311,15 @@ require('lazy').setup({
             }
           end,
         }),
+      }
+    end,
+    opts = function()
+      return {
+        formatting = {
+          format = require('lspkind').cmp_format {
+            before = require('tailwind-tools.cmp').lspkind_format,
+          },
+        },
       }
     end,
   },

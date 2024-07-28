@@ -54,6 +54,13 @@ return { -- Fuzzy Finder (files, lsp, etc)
       }
     end, { desc = '[S]earch [/] in Open Files' })
 
+    vim.keymap.set('n', '<leader>sm', function()
+      builtin.buffers {
+        sort_mru = true,
+        ignore_current_buffer = true,
+      }
+    end, { desc = '[S]earch [M]odified files' })
+
     vim.keymap.set('n', '<leader>sn', function()
       builtin.find_files { cwd = vim.fn.stdpath 'config' }
     end, { desc = '[S]earch [N]eovim files' })
