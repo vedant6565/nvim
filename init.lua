@@ -38,6 +38,7 @@ require('lazy').setup({
       'WhoIsSethDaniel/mason-tool-installer.nvim',
       { 'j-hui/fidget.nvim', opts = {} },
       { 'folke/neodev.nvim', opts = {} },
+      'hrsh7th/cmp-nvim-lsp',
     },
 
     config = function()
@@ -95,7 +96,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.server_capabilities.documentHighlightProvider then
+          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -108,11 +109,6 @@ require('lazy').setup({
               group = highlight_augroup,
               callback = vim.lsp.buf.clear_references,
             })
-            if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-              map('<leader>th', function()
-                vim.lsp.inlay_hint.enable(0, not vim.lsp.inlay_hint.is_enabled())
-              end, '[T]oggle Inlay [H]ints')
-            end
 
             vim.api.nvim_create_autocmd('LspDetach', {
               group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
@@ -123,9 +119,13 @@ require('lazy').setup({
             })
           end
 
-          if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+          -- The following code creates a keymap to toggle inlay hints in your
+          -- code, if the language server you are using supports them
+          --
+          -- This may be unwanted, since they displace some of your code
+          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>th', function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, '[T]oggle Inlay [H]ints')
           end
         end,
@@ -134,7 +134,7 @@ require('lazy').setup({
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-      --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
+      --  So, we create new capabilities with nvim cmp, and then broadcast that to the servrs.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
@@ -175,9 +175,9 @@ require('lazy').setup({
           },
         },
 
-        zls = {},
+        -- zls = {},
 
-        biome = {},
+        -- biome = {},
         eslint = {},
 
         lua_ls = {
@@ -233,14 +233,14 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
-        javascript = { 'prettier' },
-        javascriptreact = { 'prettier' },
-        typescript = { 'prettier' },
-        typescriptreact = { 'prettier' },
-        html = { 'prettier' },
-        css = { 'prettier' },
-        json = { 'prettier' },
-        jsonc = { 'prettier' },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        jsonc = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
@@ -297,8 +297,13 @@ require('lazy').setup({
           end, { 'i', 's' }),
         },
         sources = {
-          { name = 'nvim_lsp', priority = 10 },
-          { name = 'luasnip', priority = 5 },
+          {
+            name = 'lazydev',
+            -- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
+            group_index = 0,
+          },
+          { name = 'nvim_lsp' },
+          { name = 'luasnip' },
           { name = 'path' },
         },
         vim.api.nvim_create_autocmd('FileType', {
