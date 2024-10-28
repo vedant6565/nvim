@@ -19,7 +19,7 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+  -- 'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   'ThePrimeagen/vim-be-good',
   -- LSP Plugins
   {
@@ -44,11 +44,7 @@ require('lazy').setup({
       { 'j-hui/fidget.nvim', opts = {} },
       -- { 'folke/neodev.nvim', opts = {} },
       'hrsh7th/cmp-nvim-lsp',
-      {
-        'pmizio/typescript-tools.nvim',
-        dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
-        opts = {},
-      },
+      'davidosomething/format-ts-errors.nvim',
     },
 
     config = function()
@@ -166,26 +162,54 @@ require('lazy').setup({
         vim.lsp.buf.execute_command(perams)
       end
 
-      require('typescript-tools').setup {}
+      -- require('typescript-tools').setup {}
 
       local servers = {
-        -- tsserver = {
-        --   capabilities = {
-        --     textDocument = {
-        --       completion = {
-        --         completionItem = {
-        --           snippetSupport = 'None',
-        --         },
-        --       },
-        --     },
-        --   },
-        --   commands = {
-        --     OrganizeImports = {
-        --       OrganizeImports,
-        --       description = 'Organize Imports',
-        --     },
-        --   },
-        -- },
+        ts_ls = {
+          handlers = {
+            ['textDocument/publishDiagnostics'] = function(_, result, ctx, config)
+              if result.diagnostics == nil then
+                return
+              end
+
+              -- ignore some tsserver diagnostics
+              local idx = 1
+              while idx <= #result.diagnostics do
+                local entry = result.diagnostics[idx]
+
+                local formatter = require('format-ts-errors')[entry.code]
+                entry.message = formatter and formatter(entry.message) or entry.message
+
+                -- codes: https://github.com/microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
+                if entry.code == 80001 then
+                  -- { message = "File is a CommonJS module; it may be converted to an ES module.", }
+                  table.remove(result.diagnostics, idx)
+                else
+                  idx = idx + 1
+                end
+              end
+
+              vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
+            end,
+          },
+          capabilities = {
+            textDocument = {
+              completion = {
+                completionItem = {
+                  snippetSupport = 'None',
+                },
+              },
+            },
+          },
+          commands = {
+            OrganizeImports = {
+              OrganizeImports,
+              description = 'Organize Imports',
+            },
+          },
+        },
+
+        nginx_language_server = {},
 
         prismals = {},
 
@@ -195,6 +219,7 @@ require('lazy').setup({
 
         -- biome = {},
         eslint = {},
+        clangd = {},
 
         lua_ls = {
           settings = {
@@ -255,6 +280,8 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        cpp = { 'clang-format' },
+        c = { 'clang-format' },
         javascript = { 'prettierd', 'prettier', stop_after_first = true },
         javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
         typescript = { 'prettierd', 'prettier', stop_after_first = true },
@@ -397,3 +424,5 @@ require('lazy').setup({
     },
   },
 })
+
+require 'vedant'
