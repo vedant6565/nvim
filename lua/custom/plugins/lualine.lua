@@ -1,31 +1,5 @@
 local bo = vim.bo
 local fn = vim.fn
---------------------------------------------------------------------------------
-
---- https://github.com/nvim-lualine/lualine.nvim/blob/master/lua/lualine/components/branch/git_branch.lua#L118
----@nodiscard
----@return boolean
-local function isStandardBranch()
-  -- checking via lualine API, to not call git outself
-  local curBranch = require('lualine.components.branch.git_branch').get_branch()
-  local notMainBranch = curBranch ~= 'main' and curBranch ~= 'master'
-  local validFiletype = bo.filetype ~= 'help' -- vim help files are located in a git repo
-  local notSpecialBuffer = bo.buftype == ''
-  return notMainBranch and validFiletype and notSpecialBuffer
-end
-
---------------------------------------------------------------------------------
-
-local function selectionCount()
-  local isVisualMode = fn.mode():find '[Vv]'
-  if not isVisualMode then
-    return ''
-  end
-  local starts = fn.line 'v'
-  local ends = fn.line '.'
-  local lines = starts <= ends and ends - starts + 1 or starts - ends + 1
-  return ' ' .. tostring(lines) .. 'L ' .. tostring(fn.wordcount().visual_chars) .. 'C'
-end
 
 -- shows global mark M
 vim.api.nvim_del_mark 'M' -- reset on session start
@@ -51,16 +25,6 @@ local function clock()
   end -- make the `:` blink
   return time
 end
-
--- wrapper to not require navic directly
--- local function navicBreadcrumbs()
---   if bo.filetype == 'css' or not require('nvim-navic').is_available() then
---     return ''
---   end
---   return require('nvim-navic').get_location()
--- end
-
---------------------------------------------------------------------------------
 
 ---improves upon the default statusline components by having properly working icons
 ---@nodiscard
@@ -184,16 +148,9 @@ local config = {
         separator = { right = '' },
       },
     },
-    lualine_x = { 'encoding', 'fileformat', 'filetype' },
+    lualine_x = { 'fileformat', 'filetype' },
     lualine_y = { 'progress' },
-    lualine_z = {
-      'location',
-      -- {
-      --   function()
-      --     return require('battery').get_status_line()
-      --   end,
-      -- },
-    },
+    lualine_z = { 'location' },
   },
   inactive_sections = {
     lualine_a = {},
@@ -213,9 +170,8 @@ local config = {
 
 return {
   'nvim-lualine/lualine.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons', 'justinhj/battery.nvim' },
+  dependencies = { 'nvim-tree/nvim-web-devicons' },
   config = function()
-    require('battery').setup {}
     require('lualine').setup(config)
   end,
 }
