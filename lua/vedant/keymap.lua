@@ -1,5 +1,6 @@
 vim.keymap.set('n', '<leader>pv', ':Ex')
 vim.keymap.set('n', '<leader>oi', ':OrganizeImports<CR>')
+-- vim.keymap.set('n', '<leader>oi', ':TSToolsOrganizeImports<CR>')
 
 vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
 vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")

@@ -210,10 +210,7 @@ require('lazy').setup({
           },
         },
 
-        nginx_language_server = {},
-
         prismals = {},
-
         zls = {},
 
         gopls = {
@@ -234,6 +231,7 @@ require('lazy').setup({
         -- biome = {},
         eslint = {},
         clangd = {},
+        svelte = {},
 
         lua_ls = {
           settings = {
@@ -308,6 +306,7 @@ require('lazy').setup({
         css = { 'prettierd', 'prettier', stop_after_first = true },
         json = { 'prettierd', 'prettier', stop_after_first = true },
         jsonc = { 'prettierd', 'prettier', stop_after_first = true },
+        go = { 'goimports_reviser', 'gofumpt' },
       },
     },
   },
