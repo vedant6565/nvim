@@ -163,6 +163,7 @@ require('lazy').setup({
       end
 
       -- require('typescript-tools').setup {}
+      local util = require 'lspconfig/util'
 
       local servers = {
         ts_ls = {
@@ -215,8 +216,21 @@ require('lazy').setup({
 
         zls = {},
 
-        gopls = {},
-
+        gopls = {
+          capabilities = capabilities,
+          cmd = { 'gopls' },
+          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
+          root_dir = util.root_pattern('go.work', 'go.mod', '.git'),
+          settings = {
+            gopls = {
+              completeUnimported = true,
+              usePlaceholders = true,
+              analyses = {
+                unusedparams = true,
+              },
+            },
+          },
+        },
         -- biome = {},
         eslint = {},
         clangd = {},
@@ -252,7 +266,8 @@ require('lazy').setup({
   },
   { -- Autoformat
     'stevearc/conform.nvim',
-    lazy = false,
+    event = { 'BufWritePre' },
+    cmd = { 'ConformInfo' },
     keys = {
       {
         '<leader>f',
@@ -266,6 +281,9 @@ require('lazy').setup({
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
+        -- Disable "format_on_save lsp_fallback" for languages that don't
+        -- have a well standardized coding style. You can add additional
+        -- languages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
@@ -306,7 +324,14 @@ require('lazy').setup({
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = { 'rafamadriz/friendly-snippets' },
+        -- dependencies = {
+        --   {
+        --     'rafamadriz/friendly-snippets',
+        --     config = function()
+        --       require('luasnip.loaders.from_vscode').lazy_load()
+        --     end,
+        --   },
+        -- },
       },
       'saadparwaiz1/cmp_luasnip',
       { 'roobert/tailwindcss-colorizer-cmp.nvim', config = true },
@@ -401,9 +426,6 @@ require('lazy').setup({
       require('nvim-treesitter.configs').setup(opts)
     end,
   },
-  -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
   { import = 'custom.plugins' },
 }, {
   ui = {
