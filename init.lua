@@ -380,7 +380,7 @@ require('lazy').setup({
           { name = 'path' },
         },
         vim.api.nvim_create_autocmd('FileType', {
-          pattern = { 'sql', 'mysql', 'plsql' },
+          pattern = { 'sql', 'mysql', 'plsql', 'db' },
           callback = function()
             cmp.setup.buffer {
               sources = {
