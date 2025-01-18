@@ -1,4 +1,5 @@
-vim.keymap.set('n', '<leader>pv', ':Ex')
+vim.keymap.set('n', '-', ':Oil<CR>', { desc = 'Open parent directory' })
+-- vim.keymap.set('n', '-', ':Ex<CR>', { desc = 'Open parent directory' })
 vim.keymap.set('n', '<leader>oi', ':OrganizeImports<CR>')
 -- vim.keymap.set('n', '<leader>oi', ':TSToolsOrganizeImports<CR>')
 
@@ -40,8 +41,6 @@ vim.keymap.set('n', '<C-j>', '<cmd> TmuxNavigateDown<CR>')
 vim.keymap.set('n', '<C-l>', '<cmd> TmuxNavigateRight<CR>')
 vim.keymap.set('n', '<C-k>', '<cmd> TmuxNavigateUp<CR>')
 vim.keymap.set('n', '<leader>U', '<cmd>UndotreeToggle<CR>')
-
-vim.keymap.set('n', '-', ':Oil<CR>', { desc = 'Open parent directory' })
 
 vim.keymap.set('n', '<leader>gp', ':Gitsigns preview_hunk<CR>', { desc = 'Git [P]review' })
 vim.keymap.set({ 'n', 'v' }, '<leader>gd', ':DiffviewFileHistory<CR>', { desc = 'Git [D]iff' })
