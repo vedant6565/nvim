@@ -141,7 +141,8 @@ require('lazy').setup({
         },
 
         zls = {},
-        kotlin_language_server = {},
+        rust_analyzer = {},
+        biome = {},
 
         gopls = {
           capabilities = capabilities,
@@ -158,10 +159,9 @@ require('lazy').setup({
             },
           },
         },
-        -- biome = {},
         eslint = {},
         clangd = {},
-        svelte = {},
+        nginx_language_server = {},
 
         lua_ls = {
           settings = {
@@ -227,7 +227,7 @@ require('lazy').setup({
         lua = { 'stylua' },
         cpp = { 'clang-format' },
         c = { 'clang-format' },
-        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', 'biome', stop_after_first = true },
         javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
         typescript = { 'prettierd', 'prettier', stop_after_first = true },
         typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
