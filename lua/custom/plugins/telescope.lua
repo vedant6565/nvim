@@ -61,6 +61,10 @@ return { -- Fuzzy Finder (files, lsp, etc)
       }
     end, { desc = '[S]earch [M]odified files' })
 
+    vim.keymap.set('n', '<leader>sp', function()
+      builtin.find_files { cwd = '~/.rest/' }
+    end, { desc = '[S]earch Rest files' })
+
     vim.keymap.set('n', '<leader>sn', function()
       builtin.find_files { cwd = vim.fn.stdpath 'config' }
     end, { desc = '[S]earch [N]eovim files' })

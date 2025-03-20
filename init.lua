@@ -236,6 +236,7 @@ require('lazy').setup({
         json = { 'prettierd', 'prettier', stop_after_first = true },
         jsonc = { 'prettierd', 'prettier', stop_after_first = true },
         go = { 'goimports_reviser', 'gofumpt' },
+        http = { 'kulala-fmt' },
       },
     },
   },
