@@ -227,7 +227,7 @@ require('lazy').setup({
         lua = { 'stylua' },
         cpp = { 'clang-format' },
         c = { 'clang-format' },
-        javascript = { 'prettierd', 'prettier', 'biome', stop_after_first = true },
+        javascript = { 'biome', 'prettierd', 'prettier', stop_after_first = true },
         javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
         typescript = { 'prettierd', 'prettier', stop_after_first = true },
         typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
