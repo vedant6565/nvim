@@ -100,7 +100,36 @@ require('lazy').setup({
         end,
       })
 
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
+      -- Diagnostic Config
+      -- See :help vim.diagnostic.Opts
+      vim.diagnostic.config {
+        severity_sort = true,
+        float = { border = 'rounded', source = 'if_many' },
+        underline = { severity = vim.diagnostic.severity.ERROR },
+        signs = vim.g.have_nerd_font and {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '󰅚 ',
+            [vim.diagnostic.severity.WARN] = '󰀪 ',
+            [vim.diagnostic.severity.INFO] = '󰋽 ',
+            [vim.diagnostic.severity.HINT] = '󰌶 ',
+          },
+        } or {},
+        virtual_text = {
+          source = 'if_many',
+          spacing = 2,
+          format = function(diagnostic)
+            local diagnostic_message = {
+              [vim.diagnostic.severity.ERROR] = diagnostic.message,
+              [vim.diagnostic.severity.WARN] = diagnostic.message,
+              [vim.diagnostic.severity.INFO] = diagnostic.message,
+              [vim.diagnostic.severity.HINT] = diagnostic.message,
+            }
+            return diagnostic_message[diagnostic.severity]
+          end,
+        },
+      }
+
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       local function OrganizeImports()
@@ -143,6 +172,10 @@ require('lazy').setup({
         zls = {},
         rust_analyzer = {},
         biome = {},
+        tailwindcss = {},
+        html = {},
+        cssls = {},
+        css_variables = {},
 
         gopls = {
           capabilities = capabilities,
@@ -162,6 +195,8 @@ require('lazy').setup({
         eslint = {},
         clangd = {},
         nginx_language_server = {},
+        bashls = {},
+        stylua = {},
 
         lua_ls = {
           settings = {
@@ -181,6 +216,8 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
+        ensure_installed = {},
+        automatic_installation = false,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -237,97 +274,40 @@ require('lazy').setup({
         jsonc = { 'prettierd', 'prettier', stop_after_first = true },
         go = { 'goimports_reviser', 'gofumpt' },
         http = { 'kulala-fmt' },
+        bash = { 'beautysh' },
       },
     },
   },
-  { -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+  {
+    'saghen/blink.cmp',
+    event = 'VimEnter',
+    version = '1.*',
     dependencies = {
       {
         'L3MON4D3/LuaSnip',
+        version = '2.*',
         build = (function()
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
             return
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
-        },
+        dependencies = {},
+        opts = {},
       },
-      'saadparwaiz1/cmp_luasnip',
-      { 'roobert/tailwindcss-colorizer-cmp.nvim', config = true },
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
-      'luckasRanarison/tailwind-tools.nvim',
-      'onsails/lspkind-nvim',
+      'folke/lazydev.nvim',
     },
-    config = function()
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
-      luasnip.config.setup {}
-
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        completion = { completeopt = 'menu,menuone,noinsert' },
-        mapping = cmp.mapping.preset.insert {
-          ['<C-n>'] = cmp.mapping.select_next_item(),
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-          ['<C-y>'] = cmp.mapping.confirm { select = true },
-          ['<C-Space>'] = cmp.mapping.complete {},
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
-        },
-        sources = {
-          { name = 'lazydev', group_index = 0 },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
-        },
-        vim.api.nvim_create_autocmd('FileType', {
-          pattern = { 'sql', 'mysql', 'plsql', 'db' },
-          callback = function()
-            cmp.setup.buffer {
-              sources = {
-                { name = 'vim-dadbod-completion' },
-              },
-            }
-          end,
-        }),
-      }
-    end,
-    opts = function()
-      return {
-        formatting = {
-          format = require('lspkind').cmp_format {
-            before = require('tailwind-tools.cmp').lspkind_format,
-          },
-        },
-      }
-    end,
+    --- @module 'blink.cmp'
+    --- @type blink.cmp.Config
+    opts = {
+      keymap = { preset = 'default' },
+      appearance = { nerd_font_variant = 'mono' },
+      completion = { documentation = { auto_show = false, auto_show_delay_ms = 500 } },
+      sources = { default = { 'lsp', 'path', 'snippets', 'lazydev' }, providers = { lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 } } },
+      snippets = { preset = 'luasnip' },
+      fuzzy = { implementation = 'lua' },
+      signature = { enabled = true },
+    },
   },
   {
     'folke/todo-comments.nvim',

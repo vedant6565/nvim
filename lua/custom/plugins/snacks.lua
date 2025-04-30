@@ -12,38 +12,7 @@ return {
       enabled = true,
       timeout = 3000,
     },
-    lazygit = {
-      -- automatically configure lazygit to use the current colorscheme
-      -- and integrate edit with the current neovim instance
-      configure = true,
-      -- extra configuration for lazygit that will be merged with the default
-      -- snacks does NOT have a full yaml parser, so if you need `"test"` to appear with the quotes
-      -- you need to double quote it: `"\"test\""`
-      config = {
-        os = { editPreset = 'nvim-remote' },
-        gui = {
-          -- set to an empty string "" to disable icons
-          nerdFontsVersion = '3',
-        },
-      },
-      theme_path = vim.fs.normalize(vim.fn.stdpath 'cache' .. '/lazygit-theme.yml'),
-      -- Theme for lazygit
-      theme = {
-        [241] = { fg = 'Special' },
-        activeBorderColor = { fg = 'MatchParen', bold = true },
-        cherryPickedCommitBgColor = { fg = 'Identifier' },
-        cherryPickedCommitFgColor = { fg = 'Function' },
-        defaultFgColor = { fg = 'Normal' },
-        inactiveBorderColor = { fg = 'FloatBorder' },
-        optionsTextColor = { fg = 'Function' },
-        searchingActiveBorderColor = { fg = 'MatchParen', bold = true },
-        selectedLineBgColor = { bg = 'Visual' }, -- set to `default` to have no background colour
-        unstagedChangesColor = { fg = 'DiagnosticError' },
-      },
-      win = {
-        style = 'lazygit',
-      },
-    },
+    lazygit = {},
     quickfile = { enabled = true },
     -- scroll = { enabled = true },
     statuscolumn = { enabled = true },
@@ -55,6 +24,55 @@ return {
     },
   },
   keys = {
+    {
+      '<leader>gb',
+      function()
+        Snacks.picker.git_branches()
+      end,
+      desc = 'Git Branches',
+    },
+    {
+      '<leader>gl',
+      function()
+        Snacks.picker.git_log()
+      end,
+      desc = 'Git Log',
+    },
+    {
+      '<leader>gL',
+      function()
+        Snacks.picker.git_log_line()
+      end,
+      desc = 'Git Log Line',
+    },
+    {
+      '<leader>gs',
+      function()
+        Snacks.picker.git_status()
+      end,
+      desc = 'Git Status',
+    },
+    {
+      '<leader>gS',
+      function()
+        Snacks.picker.git_stash()
+      end,
+      desc = 'Git Stash',
+    },
+    {
+      '<leader>gd',
+      function()
+        Snacks.picker.git_diff()
+      end,
+      desc = 'Git Diff (Hunks)',
+    },
+    {
+      '<leader>gf',
+      function()
+        Snacks.picker.git_log_file()
+      end,
+      desc = 'Git Log File',
+    },
     {
       '<leader>z',
       function()
@@ -110,20 +128,7 @@ return {
         Snacks.gitbrowse()
       end,
       desc = 'Git Browse',
-    },
-    {
-      '<leader>gb',
-      function()
-        Snacks.git.blame_line()
-      end,
-      desc = 'Git Blame Line',
-    },
-    {
-      '<leader>gf',
-      function()
-        Snacks.lazygit.log_file()
-      end,
-      desc = 'Lazygit Current File History',
+      mode = { 'n', 'v' },
     },
     {
       '<leader>gg',
@@ -131,13 +136,6 @@ return {
         Snacks.lazygit()
       end,
       desc = 'Lazygit',
-    },
-    {
-      '<leader>gl',
-      function()
-        Snacks.lazygit.log()
-      end,
-      desc = 'Lazygit Log (cwd)',
     },
     {
       '<leader>un',

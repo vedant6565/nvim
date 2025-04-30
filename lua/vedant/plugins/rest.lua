@@ -7,7 +7,4 @@ return {
       table.insert(opts.ensure_installed, 'http')
     end,
   },
-  config = function()
-    vim.keymap.set('n', '<leader>rr', ':Rest run<CR>')
-  end,
 }
