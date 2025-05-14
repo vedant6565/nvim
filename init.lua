@@ -29,6 +29,12 @@ require('lazy').setup({
       },
     },
   },
+  -- {
+  --   'folke/ts-comments.nvim',
+  --   opts = {},
+  --   event = 'VeryLazy',
+  --   enabled = vim.fn.has 'nvim-0.10.0' == 1,
+  -- },
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
@@ -132,42 +138,38 @@ require('lazy').setup({
       local capabilities = require('blink.cmp').get_lsp_capabilities()
       capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
 
-      local function OrganizeImports()
-        local perams = {
-          command = '_typescript.organizeImports',
-          arguments = { vim.api.nvim_buf_get_name(0) },
-        }
-        vim.lsp.buf.execute_command(perams)
-      end
+      -- local function OrganizeImports()
+      --   local perams = {
+      --     command = '_typescript.organizeImports',
+      --     arguments = { vim.api.nvim_buf_get_name(0) },
+      --   }
+      --   vim.lsp.buf.execute_command(perams)
+      -- end
 
       -- require('typescript-tools').setup {}
       local util = require 'lspconfig/util'
 
       local servers = {
-        denols = {
-          root_dir = util.root_pattern('deno.json', 'deno.jsonc'),
-        },
-
-        ts_ls = {
-          handlers = {},
-          capabilities = {
-            textDocument = {
-              completion = {
-                completionItem = {
-                  snippetSupport = 'None',
-                },
-              },
-            },
-          },
-          root_dir = util.root_pattern 'package.json',
-          single_file_support = false,
-          commands = {
-            OrganizeImports = {
-              OrganizeImports,
-              description = 'Organize Imports',
-            },
-          },
-        },
+        -- ts_ls = {
+        --   handlers = {},
+        --   capabilities = {
+        --     textDocument = {
+        --       completion = {
+        --         completionItem = {
+        --           snippetSupport = 'None',
+        --         },
+        --       },
+        --     },
+        --   },
+        --   root_dir = util.root_pattern 'package.json',
+        --   single_file_support = false,
+        --   commands = {
+        --     OrganizeImports = {
+        --       OrganizeImports,
+        --       description = 'Organize Imports',
+        --     },
+        --   },
+        -- },
 
         zls = {},
         rust_analyzer = {},
